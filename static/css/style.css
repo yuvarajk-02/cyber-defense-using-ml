@@ -1,0 +1,90 @@
+body {
+    font-family: Arial;
+    background-color: #f2f2f2;
+    text-align: center;
+    padding-top: 50px;
+}
+
+form {
+    background: white;
+    width: 300px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+input, button {
+    width: 90%;
+    padding: 8px;
+    margin: 8px;
+}
+
+button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+}
+
+
+
+/***login page**/
+
+body.login-body {
+    background: #0e1117;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: white;
+}
+
+.login-container {
+    background: #161b22;
+    padding: 40px;
+    width: 320px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(0,0,0,0.6);
+}
+
+.login-container h2 {
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #9da5b4;
+    margin-bottom: 20px;
+}
+
+.login-container input,
+.login-container select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    background: #238636;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.login-container button:hover {
+    background: #2ea043;
+}
+
+.footer-text {
+    margin-top: 15px;
+    font-size: 12px;
+    color: #8b949e;
+}

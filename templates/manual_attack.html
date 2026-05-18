@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Manual Cyber Attack Simulation</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+    margin:0;
+    font-family:'Orbitron',sans-serif;
+    color:white;
+    background:#020617;
+    overflow-x:hidden;
+}
+
+/* MATRIX STYLE BACKGROUND */
+
+body::before{
+    content:"";
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: radial-gradient(circle at top,#0ea5e9 0%,transparent 60%),
+                radial-gradient(circle at bottom,#22c55e 0%,transparent 60%);
+    opacity:0.08;
+    z-index:-1;
+}
+
+
+/* NAVBAR */
+
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 40px;
+    background:#020617;
+    border-bottom:1px solid #1e293b;
+}
+
+.nav-left{
+    font-size:22px;
+    font-weight:600;
+    color:#38bdf8;
+    letter-spacing:1px;
+}
+
+.nav-right a{
+    margin-left:25px;
+    text-decoration:none;
+    color:white;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.nav-right a:hover{
+    color:#22c55e;
+}
+
+.logout{
+    background:#ef4444;
+    padding:6px 14px;
+    border-radius:6px;
+}
+
+
+/* FORM AREA */
+
+.container{
+    width:430px;
+    margin:90px auto;
+}
+
+
+/* CARD */
+
+.card{
+
+    background:#0f172a;
+    padding:35px;
+
+    border-radius:14px;
+
+    border:1px solid #1e293b;
+
+    box-shadow:0 0 20px rgba(34,211,238,0.3);
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+
+/* SCANNING ANIMATION */
+
+.card::after{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:3px;
+    background:#22c55e;
+    top:0;
+    left:-100%;
+    animation: scan 4s linear infinite;
+}
+
+@keyframes scan{
+    0%{left:-100%;}
+    100%{left:100%;}
+}
+
+
+h2{
+    text-align:center;
+    margin-bottom:25px;
+    color:#38bdf8;
+}
+
+
+/* INPUT */
+
+label{
+    font-size:13px;
+}
+
+input,select{
+
+    width:100%;
+    padding:10px;
+    margin-top:6px;
+    margin-bottom:16px;
+
+    background:#020617;
+    border:1px solid #334155;
+    border-radius:6px;
+
+    color:white;
+}
+
+input:focus{
+    border:1px solid #22c55e;
+    outline:none;
+}
+
+
+/* BUTTON */
+
+button{
+
+    width:100%;
+    padding:12px;
+
+    background:linear-gradient(90deg,#22c55e,#38bdf8);
+
+    border:none;
+    border-radius:6px;
+
+    font-size:14px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+button:hover{
+
+    transform:scale(1.05);
+
+    box-shadow:0 0 12px #22c55e;
+
+}
+
+
+/* RESULT */
+
+.result{
+
+    margin-top:20px;
+
+    text-align:center;
+
+    font-size:17px;
+
+    padding:12px;
+
+    border-radius:6px;
+
+    background:#020617;
+
+    border:1px solid #1e293b;
+
+    animation: fade 0.8s ease-in;
+
+}
+
+@keyframes fade{
+
+    from{opacity:0; transform:translateY(10px);}
+
+    to{opacity:1; transform:translateY(0);}
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<nav class="navbar">
+
+<div class="nav-left">
+🛡 CYBER DEFENCE
+</div>
+
+<div class="nav-right">
+<a href="/dashboard">Dashboard</a>
+<a href="/manual_attack">Manual Attack</a>
+<a href="#">Reports</a>
+<a href="/logout" class="logout">Logout</a>
+</div>
+
+</nav>
+
+
+<div class="container">
+
+<div class="card">
+
+<h2>Manual Attack Simulation</h2>
+
+<form action="/predict_attack" method="POST">
+
+<label>Duration</label>
+<input type="number" name="duration" required>
+
+<label>Protocol Type</label>
+<select name="protocol_type">
+<option value="0">TCP</option>
+<option value="1">UDP</option>
+<option value="2">ICMP</option>
+</select>
+
+<label>Service</label>
+<input type="number" name="service" required>
+
+<label>Flag</label>
+<input type="number" name="flag" required>
+
+<label>Source Bytes</label>
+<input type="number" name="src_bytes" required>
+
+<label>Destination Bytes</label>
+<input type="number" name="dst_bytes" required>
+
+<button type="submit">Predict Attack</button>
+
+</form>
+
+
+{% if result %}
+
+<div class="result">
+{{ result }}
+</div>
+
+{% endif %}
+
+</div>
+
+</div>
+
+</body>
+</html>

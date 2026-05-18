@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Real-Time Cyber Threat Dashboard</title>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- Socket.IO -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    background: #0e1117;
+    font-family: Arial;
+    color: white;
+}
+
+.navbar{
+    position:fixed;
+    top:0;
+    width:100%;
+    height:70px;
+    background:#161b22;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 20px;
+    z-index:1000;
+    box-sizing:border-box;
+}
+
+.nav-left {
+    font-size: 32px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-left: 30px;
+}
+span{
+    color: #58a6ff;
+}
+
+.nav-right {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.nav-right a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    margin-right: 25px;
+}
+
+.nav-right a:hover {
+    color: #58a6ff;
+}
+
+.logout {
+    color: #ff4c4c;
+}
+
+
+@keyframes blink {
+    50% { opacity: 0.3; }
+}
+
+/* HERO SECTION */
+.hero{
+    margin-top:90px;
+    min-height:450px;
+
+    background:
+    linear-gradient(
+    rgba(0,0,0,.55),
+    rgba(0,0,0,.55)),
+    url("/static/images/banner.jpg")
+    center/cover no-repeat;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.hero-content {
+    color: white;
+    max-width: 800px;
+}
+
+.hero-content h1 {
+    font-size: 38px;
+    margin-bottom: 10px;
+    color: #58a6ff;
+}
+
+.hero-content p {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.hero-stats div {
+    background: rgba(255,255,255,0.1);
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* STATUS CARDS */
+.status-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
+    margin-top: 70px; /* below navbar */
+}
+
+.status-card {
+    background: #161b22;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 0 12px rgba(0,0,0,0.4);
+}
+
+.status-card h4 {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #aaa;
+}
+
+.status-card p {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* COLORS */
+.red { border-left: 5px solid #ff4c4c; }
+.green { border-left: 5px solid #00ff88; }
+.orange { border-left: 5px solid #ffa500; }
+.blue { border-left: 5px solid #58a6ff; }
+
+
+
+/* DASHBOARD */
+.dashboard {
+    margin-top: 80px;   /* ✅ FIX */
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    background: #161b22;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+#map {
+    height: 300px;
+}
+
+.alerts {
+    height: 150px;
+    overflow-y: auto;
+}
+
+.alerts div {
+    border-bottom: 1px solid #333;
+    padding: 5px;
+    color: #ff4c4c;
+}
+
+canvas {
+    height: 200px;
+}
+
+/*****fooder****/
+.footer {
+    background: linear-gradient(180deg, #0d1117, #161b22);
+    color: #ccc;
+    margin-top: 40px;
+    font-size: 14px;
+    border-top: 1px solid #222;
+}
+
+/* GRID */
+.footer-top {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding: 35px;
+}
+
+/* BOX */
+.footer-box h3,
+.footer-box h4 {
+    color: #58a6ff;
+    margin-bottom: 10px;
+}
+
+.footer-box p {
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+/* LINKS */
+.footer-box a {
+    display: block;
+    color: #ccc;
+    text-decoration: none;
+    margin-bottom: 6px;
+    transition: 0.3s;
+}
+
+.footer-box a:hover {
+    color: #58a6ff;
+    transform: translateX(5px);
+}
+
+/* PULSE STATUS */
+.pulse-status {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.pulse-dot {
+    width: 10px;
+    height: 10px;
+    background: #00ff88;
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0,255,136,0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(0,255,136,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+}
+
+/* TECH STACK */
+.footer-tech {
+    border-top: 1px solid #333;
+    padding: 15px;
+    text-align: center;
+}
+
+.footer-tech span {
+    background: rgba(88,166,255,0.15);
+    color: #58a6ff;
+    padding: 6px 14px;
+    margin: 6px;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 12px;
+    animation: float 4s ease-in-out infinite;
+}
+
+.footer-tech span:nth-child(even) {
+    animation-delay: 2s;
+}
+
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0); }
+}
+
+/* BOTTOM */
+.footer-bottom {
+    border-top: 1px solid #333;
+    text-align: center;
+    padding: 12px;
+    font-size: 12px;
+    color: #888;
+}
+
+@media screen and (max-width:992px){
+
+    /* Navbar */
+    .navbar{
+        flex-direction:column;
+        height:auto;
+        padding:15px;
+    }
+
+    .nav-left{
+        margin-left:0;
+        font-size:26px;
+        margin-bottom:10px;
+    }
+
+    .nav-right{
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:12px;
+    }
+
+    .nav-right a{
+        margin-right:0;
+        font-size:16px;
+    }
+
+    /* Hero */
+    .hero{
+        height:auto;
+        padding:60px 20px;
+        text-align:center;
+    }
+
+    .hero-content h1{
+        font-size:30px;
+    }
+
+    .hero-content p{
+        font-size:15px;
+    }
+
+    .hero-stats{
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+
+    /* Status cards */
+    .status-container{
+        grid-template-columns:repeat(2,1fr);
+        margin-top:20px;
+    }
+
+    /* Dashboard */
+    .dashboard{
+        grid-template-columns:1fr;
+    }
+
+    #map{
+        height:250px;
+    }
+
+    /* Footer */
+    .footer-top{
+        grid-template-columns:1fr;
+        text-align:center;
+    }
+
+    canvas{
+        width:100% !important;
+        height:auto !important;
+    }
+}
+
+
+/* Mobile phones */
+
+@media screen and (max-width:576px){
+
+    .hero-content h1{
+        font-size:24px;
+    }
+
+    .hero-content p{
+        font-size:14px;
+    }
+
+    .hero-stats{
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .status-container{
+        grid-template-columns:1fr;
+    }
+
+    .status-card p{
+        font-size:22px;
+    }
+
+    .nav-right{
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .alerts{
+        height:120px;
+    }
+
+    #enableSoundBtn{
+        top:auto !important;
+        bottom:20px;
+        right:15px;
+        font-size:13px;
+        padding:8px 12px;
+    }
+}
+
+/* Toggle button */
+.menu-toggle{
+    display:none;
+    font-size:28px;
+    cursor:pointer;
+    color:white;
+    margin-right:20px;
+}
+
+/* Mobile navbar */
+@media screen and (max-width:768px){
+
+    .navbar{
+        flex-direction:row;
+        justify-content:space-between;
+        padding:15px;
+    }
+
+    .menu-toggle{
+        display:block;
+    }
+
+    .nav-right{
+        display:none;
+        position:absolute;
+        top:70px;
+        left:0;
+        width:100%;
+        background:#161b22;
+        flex-direction:column;
+        text-align:center;
+        padding:20px 0;
+        z-index:1000;
+    }
+
+    .nav-right.show{
+        display:flex;
+    }
+
+    .nav-right a{
+        margin:10px 0;
+        font-size:18px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+    <button id="enableSoundBtn"
+        style="
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 9999;
+        background: red;
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        cursor: pointer;">
+🔊 Enable Alerts
+</button>
+
+
+<nav class="navbar">
+
+    <!-- Logo -->
+    <div class="nav-left">
+        🛡️ Cyber <span>Defence</span> 
+    </div>
+
+    <!-- Toggle Button -->
+    <div class="menu-toggle" onclick="toggleMenu()">
+        ☰
+    </div>
+
+    <!-- Menu -->
+    <div class="nav-right" id="navMenu">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/manual_attack">Manual Attack</a>
+        <a href="/reports">Reports</a>
+        <a href="/" class="logout">Logout</a>
+    </div>
+
+</nav>
+
+<!-- CYBER SECURITY HERO SECTION -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>AI-Powered Cyber Security</h1>
+        <p>Real-Time Threat Detection • Network Protection • Live Monitoring</p>
+        <div class="hero-stats">
+            <div>🛡️ Secure</div>
+            <div>⚡ Real-Time</div>
+            <div>🌐 Global</div>
+        </div>
+    </div>
+</section>
+
+
+<!-- 🔢 STATUS CARDS -->
+<div class="status-container">
+
+    <div class="status-card red">
+        <h4>Total Attacks</h4>
+        <p id="attackCount">0</p>
+    </div>
+
+    <div class="status-card green">
+        <h4>Normal Traffic</h4>
+        <p id="normalCount">0</p>
+    </div>
+
+    <div class="status-card orange">
+        <h4>Active Threats</h4>
+        <p id="activeThreats">0</p>
+    </div>
+
+    <div class="status-card blue">
+        <h4>Last Scan</h4>
+        <p id="lastScan">--:--:--</p>
+    </div>
+
+</div>
+
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+
+    <!-- LEFT -->
+    <div class="card">
+        <h3>🌍 Global Threat Map</h3>
+        <div id="map"></div>
+
+        <h3>🚨 Live Alert Feed</h3>
+        <div class="alerts" id="alertBox"></div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="card">
+        <h3>📈 Attacks Per Scan</h3>
+        <canvas id="attackChart"></canvas>
+    </div>
+
+</div>
+<footer class="footer">
+
+    <!-- TOP SECTION -->
+    <div class="footer-top">
+
+        <!-- PROJECT INFO -->
+        <div class="footer-box">
+            <h3>🛡️ Cyber Defence</h3>
+            <p>Real-Time Threat Detection • Network Protection • Live Monitoring</p>
+            <div class="pulse-status">
+                <span class="pulse-dot"></span>
+                <span id="systemStatus">SYSTEM ONLINE</span>
+            </div>
+        </div>
+
+        <!-- LIVE STATS -->
+        <div class="footer-box">
+            <h4>Live Security Stats</h4>
+            <p>🔴 Attacks Detected: <b id="footerAttackCount">0</b></p>
+            <p>🟢 Normal Traffic: <b id="footerNormalCount">0</b></p>
+            <p>⚡ Scan Interval: <b>5 Seconds</b></p>
+        </div>
+
+        <!-- QUICK LINKS -->
+        <div class="footer-box">
+            <h4>Quick Access</h4>
+            <a href="/dashboard">Dashboard</a>
+            <a href="#">Threat Map</a>
+            <a href="#">Reports</a>
+            <a href="/" class="logout">Logout</a>
+        </div>
+
+    </div>
+
+    <!-- TECH STACK -->
+    <div class="footer-tech">
+        <span>Python</span>
+        <span>Flask</span>
+        <span>Machine Learning</span>
+        <span>Socket.IO</span>
+        <span>Leaflet</span>
+        <span>Chart.js</span>
+    </div>
+
+    <!-- COPYRIGHT -->
+    <div class="footer-bottom">
+        © <span id="year"></span> | AI Cyber Security Academic Project
+    </div>
+
+</footer>
+
+<!-- 🔊 ALERT SIREN -->
+<audio id="alertSound" preload="auto">
+    <source src="/static/sounds/danger_siren.mp3" type="audio/mpeg">
+</audio>
+
+
+<script src="/static/js/script.js"></script>
+</body>
+</html>

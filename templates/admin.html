@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Control Panel</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body>
+
+<div class="admin-container">
+    <h1>🛡️ Cyber Security Admin Panel</h1>
+
+    <div class="control-card">
+        <h3>Threat Detection</h3>
+        <button onclick="sendAction('start')" class="btn green">Start</button>
+        <button onclick="sendAction('pause')" class="btn red">Pause</button>
+    </div>
+
+    <div class="control-card">
+        <h3>Alert System</h3>
+        <button onclick="sendAction('alerts')" class="btn blue">
+            Toggle Alerts
+        </button>
+    </div>
+
+    <div class="status-card">
+        <h3>System Status</h3>
+        <p id="statusText">Loading...</p>
+    </div>
+
+    <div class="container">
+
+
+<!-- ADD USER -->
+<div class="form-box">
+<h3>Add New User</h3>
+
+<form action="/admin/add_user" method="POST">
+
+<input type="text" name="name" placeholder="Name" required>
+<input type="text" name="username" placeholder="Username" required>
+<input type="password" name="password" placeholder="Password" required>
+
+<select name="role">
+<option value="admin">Admin</option>
+<option value="analyst">Analyst</option>
+</select>
+
+<button type="submit">Add User</button>
+
+</form>
+</div>
+
+<!-- USER TABLE -->
+<h3>All Users</h3>
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Username</th>
+<th>Role</th>
+<th>Action</th>
+</tr>
+
+{% for user in users %}
+
+<tr>
+<td>{{ user.id }}</td>
+<td>{{ user.name }}</td>
+<td>{{ user.username }}</td>
+<td>{{ user.role }}</td>
+<td>
+<a href="/admin/delete_user/{{ user.id }}" class="delete">Delete</a>
+</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+
+    <a href="/dashboard" class="back">⬅ Back to Dashboard</a>
+</div>
+
+<script src="/static/js/admin.js"></script>
+</body>
+</html>

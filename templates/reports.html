@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Attack Reports</title>
+
+<style>
+body{
+    background:#020617;
+    color:white;
+    font-family:Arial;
+}
+
+.container{
+    width:90%;
+    margin:auto;
+    margin-top:40px;
+}
+
+h1{
+    text-align:center;
+    color:#38bdf8;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:10px;
+    border-bottom:1px solid #334155;
+    text-align:center;
+}
+
+th{
+    color:#38bdf8;
+}
+
+.attack{
+    color:red;
+    font-weight:bold;
+}
+
+.normal{
+    color:#22c55e;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🚨 Cyber Attack Reports</h1>
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Attack Type</th>
+<th>Status</th>
+<th>Source Bytes</th>
+<th>Destination Bytes</th>
+<th>Time</th>
+</tr>
+
+{% for log in logs %}
+
+<tr>
+<td>{{ log.id }}</td>
+<td>{{ log.attack_type }}</td>
+<td class="attack">{{ log.status }}</td>
+<td>{{ log.src_bytes }}</td>
+<td>{{ log.dst_bytes }}</td>
+<td>{{ log.time }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</body>
+</html>
