@@ -533,9 +533,7 @@ def logout():
 
 # ================= RUN =================
 
-if __name__=="__main__":
+app = app
 
-    socketio.run(
-    app,
-    debug=True
-    )
+if __name__ == "__main__":
+    socketio.run(app, debug=True)
