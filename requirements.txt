@@ -5,3 +5,4 @@ numpy
 scikit-learn
 eventlet
 gunicorn
+mysql-connector-python
